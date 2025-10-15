@@ -178,15 +178,31 @@
                                                 <h3 class="panel-title">Download materialet</h3>
                                         </div>
                                         <div class="panel-body">
-                                                <p>Brug GitHub til hurtigt at hente alle filer ned på din computer.</p>
+                                                <p>Brug GitHub-repoet <code>Ronnykisbye/August-app</code> som det centrale sted for kildekoden.</p>
                                                 <ol>
-                                                        <li>Åbn projektets GitHub-side, klik på <strong>Code</strong> og vælg <strong>Download ZIP</strong>.</li>
+                                                        <li>Gå til <a href="https://github.com/Ronnykisbye/August-app" target="_blank" rel="noopener">github.com/Ronnykisbye/August-app</a>, klik på <strong>Code</strong> og vælg <strong>Download ZIP</strong>.</li>
                                                         <li>Udpak ZIP-arkivet til en mappe, hvor du nemt kan finde filerne igen.</li>
                                                         <li>Alternativt kan du klone repoet direkte med Git:</li>
                                                 </ol>
-                                                <pre><code>git clone https://github.com/&lt;brugernavn&gt;/&lt;repo-navn&gt;.git
-                                                cd &lt;repo-navn&gt;</code></pre>
-                                                <p class="text-muted">Tip: Opdater <code>&lt;brugernavn&gt;</code> og <code>&lt;repo-navn&gt;</code> til dit eget repository. Du kan altid hente en ny ZIP-fil, hvis du laver ændringer i GitHub.</p>
+                                                <pre><code>git clone https://github.com/Ronnykisbye/August-app.git
+cd August-app</code></pre>
+                                                <p class="text-muted">Tip: Kør <code>git pull</code>, når du vil opdatere din lokale mappe med de seneste ændringer fra GitHub.</p>
+                                        </div>
+                                </div>
+                                <div class="panel panel-info topic-panel">
+                                        <div class="panel-heading">
+                                                <h3 class="panel-title">Flyt dine lokale filer til GitHub-repoet</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                                <p>Hvis du har arbejdet lokalt eller i et andet repository, kan du overføre alt til <code>August-app</code> ved at følge disse trin:</p>
+                                                <ol>
+                                                        <li>Åbn en terminal i den mappe, hvor dine nuværende filer ligger, og initialiser Git, hvis det ikke allerede er gjort: <code>git init</code>.</li>
+                                                        <li>Tilføj GitHub-repoet som fjernsted: <code>git remote add origin https://github.com/Ronnykisbye/August-app.git</code>.</li>
+                                                        <li>Tilføj og commit dine filer med <code>git add .</code> efterfulgt af <code>git commit -m "Initial commit"</code> (eller en mere beskrivende besked).</li>
+                                                        <li>Skub ændringerne op med <code>git push -u origin main</code> (brug <code>master</code>, hvis standardbranchenavnet i repoet er master).</li>
+                                                        <li>Kontrollér på GitHub, at filerne nu ligger i <code>August-app</code>. Del derefter linket med andre efter behov.</li>
+                                                </ol>
+                                                <p class="text-muted">Har du allerede et andet fjernrepository tilknyttet? Kør først <code>git remote remove origin</code>, og tilføj derefter adressen til <code>August-app</code>.</p>
                                         </div>
                                 </div>
                                 <div class="panel panel-primary topic-panel">
