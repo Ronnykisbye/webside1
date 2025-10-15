@@ -6,6 +6,67 @@
         <title>Test side til Cloud: Teknologi 1: Læringsmål: Mini projekt</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+        <style>
+                body {
+                        background-color: #f5f7fa;
+                        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+                        padding-top: 30px;
+                }
+
+                h1,
+                h2,
+                h3 {
+                        font-weight: 300;
+                }
+
+                #tabs {
+                        background-color: #fff;
+                        border-radius: 4px;
+                        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+                        padding: 20px;
+                }
+
+                .intro-table td {
+                        padding: 4px 0;
+                }
+
+                .topic-panel {
+                        margin-top: 15px;
+                }
+
+                .topic-panel h3 {
+                        margin-top: 0;
+                }
+
+                .webservice-table td {
+                        padding: 10px;
+                        vertical-align: middle;
+                }
+
+                #webresult {
+                        margin-top: 15px;
+                }
+
+                .probability-bar {
+                        height: 12px;
+                        border-radius: 6px;
+                        background: linear-gradient(90deg, #5bc0de, #337ab7);
+                }
+
+                .probability-wrapper {
+                        background-color: #e9ecef;
+                        border-radius: 6px;
+                        overflow: hidden;
+                }
+
+                .empty-state {
+                        padding: 15px;
+                        background-color: #fff3cd;
+                        border: 1px solid #ffeeba;
+                        border-radius: 4px;
+                        color: #856404;
+                }
+        </style>
         <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
         <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
         <script>
@@ -13,26 +74,69 @@
                        $("#tabs").tabs();
                        $("#tabs-om-1").tabs();
                                 
-                        $("#btnRun").click(function() 
+                        $("#btnRun").click(function(event)
                         {
-                                $.ajax({url: "https://api.nationalize.io/?name="+encodeURIComponent($( "#navn" ).val()), success: function(result)
+                                event.preventDefault();
+
+                                var navn = $("#navn").val().trim();
+
+                                if (!navn) {
+                                        $("#webresult").html('<div class="alert alert-warning">Indtast venligst et navn, før du tester webservicen.</div>');
+                                        return;
+                                }
+
+                                $("#btnRun").prop("disabled", true).text("Henter...");
+
+                                $.ajax({
+                                        url: "https://api.nationalize.io/?name=" + encodeURIComponent(navn),
+                                        method: "GET"
+                                }).done(function(result)
                                 {
-                                        $("#webresult").html("");
-                                        $.each(result.country, function (i) 
-                                        {
-                                        $.each(result.country[i], function (key, val) 
-                                        {
-                                                $("#webresult").append("<div>"+key+": "+val+"</div>");
-                                        });
-                        });
-                                }});
+                                        var countries = result.country || [];
+                                        var content = '';
+
+                                        if (!countries.length) {
+                                                content = '<div class="empty-state">Der blev ikke fundet sandsynligheder for dette navn. Prøv eventuelt med et andet.</div>';
+                                        } else {
+                                                content += '<h4>Forventede lande for <span class="text-primary">' + navn + '</span></h4>';
+                                                content += '<table class="table table-striped">';
+                                                content += '<thead><tr><th>Landekode</th><th>Sandsynlighed</th><th style="width: 40%">Visualisering</th></tr></thead><tbody>';
+
+                                                $.each(countries, function (i, country)
+                                                {
+                                                        var probability = Math.round(country.probability * 1000) / 10; // én decimal
+                                                        content += '<tr>';
+                                                        content += '<td>' + country.country_id + '</td>';
+                                                        content += '<td>' + probability.toFixed(1) + '%</td>';
+                                                        content += '<td><div class="probability-wrapper"><div class="probability-bar" style="width: ' + probability + '%"></div></div></td>';
+                                                        content += '</tr>';
+                                                });
+
+                                                content += '</tbody></table>';
+                                                content += '<p class="text-muted">Data leveres af <a href="https://nationalize.io" target="_blank" rel="noopener">nationalize.io</a>.</p>';
+                                        }
+
+                                        $("#webresult").html(content);
+                                }).fail(function()
+                                {
+                                        $("#webresult").html('<div class="alert alert-danger">Der opstod en fejl under hentning af data. Kontroller din internetforbindelse, og prøv igen.</div>');
+                                }).always(function()
+                                {
+                                        $("#btnRun").prop("disabled", false).text("Test webservice");
+                                });
                         });
                 });
         </script>
 </head>
 
 <body>
-        <div id="tabs">
+        <div class="container">
+                <div class="page-header">
+                        <h1>Test side til Cloud projekt</h1>
+                        <p class="lead">En interaktiv oversigt over læringsmål og ressourcer til mini-projektet.</p>
+                </div>
+        </div>
+        <div id="tabs" class="container">
                 <ul>
                         <li><a href="#start">Start</a></li>
                         <li><a href="#om-1">Område 1</a></li>
@@ -41,34 +145,135 @@
                         <li><a href="#om-4">Område 4</a></li>
                         <li><a href="#webs">Webservice</a></li>
                 </ul>
-                <div id="start">
-                        <p><h1>Test side til Cloud projekt</h1></p>
-                        <p><b>Programmet arbejder med de 4 læringsmålsområder</b></p>
-                        <table>
-                                <tr>
-                                        <td>Område 1: Cloud, Operativ systemer, Database.</td>
-                                </tr>
-                                <tr>
-                                        <td>Område 2: Talsystemer, Debug. </td>
-                                </tr>
-                                <tr>
-                                        <td>Område 3: Samtidighedsproblematikker.</td>
-                                </tr>
-                                <tr>
-                                        <td>Område 4: Computernetværk.</td>
-                                </tr>
-                                <tr>
-                                        <td>Webservice: Test område af webservice</td>
-                                </tr>
-                        </table>
-                        <br />
-
-                        Mini projektet er udarbejdet af
-                        <br /><br />
-                        Ronny Kisbye
-                        <br /><br />
-                        2022
-        
+                <div id="start" class="row">
+                        <div class="col-md-7">
+                                <h2>Overblik</h2>
+                                <p>Programmet arbejder med de fire overordnede læringsmålsområder. Brug fanerne for at dykke ned i hvert område, og benyt webservicen for at eksperimentere med data fra omverdenen.</p>
+                                <table class="table intro-table">
+                                        <tbody>
+                                                <tr>
+                                                        <td><strong>Område 1</strong></td>
+                                                        <td>Cloud, operativsystemer og databaser.</td>
+                                                </tr>
+                                                <tr>
+                                                        <td><strong>Område 2</strong></td>
+                                                        <td>Talsystemer og debugging.</td>
+                                                </tr>
+                                                <tr>
+                                                        <td><strong>Område 3</strong></td>
+                                                        <td>Samtidighedsproblematikker.</td>
+                                                </tr>
+                                                <tr>
+                                                        <td><strong>Område 4</strong></td>
+                                                        <td>Computernetværk.</td>
+                                                </tr>
+                                                <tr>
+                                                        <td><strong>Webservice</strong></td>
+                                                        <td>Testområde til integration med eksterne API'er.</td>
+                                                </tr>
+                                        </tbody>
+                                </table>
+                                <div class="panel panel-default topic-panel">
+                                        <div class="panel-heading">
+                                                <h3 class="panel-title">Download materialet</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                                <p>Brug GitHub til hurtigt at hente alle filer ned på din computer.</p>
+                                                <ol>
+                                                        <li>Åbn projektets GitHub-side, klik på <strong>Code</strong> og vælg <strong>Download ZIP</strong>.</li>
+                                                        <li>Udpak ZIP-arkivet til en mappe, hvor du nemt kan finde filerne igen.</li>
+                                                        <li>Alternativt kan du klone repoet direkte med Git:</li>
+                                                </ol>
+                                                <pre><code>git clone https://github.com/&lt;brugernavn&gt;/&lt;repo-navn&gt;.git
+                                                cd &lt;repo-navn&gt;</code></pre>
+                                                <p class="text-muted">Tip: Opdater <code>&lt;brugernavn&gt;</code> og <code>&lt;repo-navn&gt;</code> til dit eget repository. Du kan altid hente en ny ZIP-fil, hvis du laver ændringer i GitHub.</p>
+                                        </div>
+                                </div>
+                                <div class="panel panel-primary topic-panel">
+                                        <div class="panel-heading">
+                                                <h3 class="panel-title">Sådan ser du appen</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                                <ol>
+                                                        <li>Hent projektet til din computer (fx via <em>Code &gt; Download ZIP</em> eller <code>git clone</code>).</li>
+                                                        <li>Åbn mappen, og dobbeltklik på <code>index.html</code> for at åbne den direkte i din browser.</li>
+                                                        <li>Hvis du foretrækker en lokal server, kan du køre <code>python -m http.server 8000</code> fra projektmappen og besøge <code>http://localhost:8000</code>.</li>
+                                                        <li>Når siden er indlæst, kan du gennemgå fanerne og teste webservicen nederst.</li>
+                                                </ol>
+                                                <p class="text-muted">Tip: Visual Studio Code-brugere kan aktivere udvidelsen <em>Live Server</em> for automatisk genindlæsning ved ændringer.</p>
+                                        </div>
+                                </div>
+                                <div class="panel panel-info topic-panel">
+                                        <div class="panel-heading">
+                                                <h3 class="panel-title">Sådan prøver du siden</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                                <ol>
+                                                        <li>Start i overbliksfanen for at få kontekst om læringsmålene.</li>
+                                                        <li>Gå derefter systematisk gennem de fire områder, og notér spørgsmål til refleksion.</li>
+                                                        <li>Afslut med webservice-fanen for at prøve dataeksperimentet med egne input.</li>
+                                                </ol>
+                                                <p class="text-muted">Tip: Brug noteværktøj eller udskriftsfunktionen i browseren, hvis du vil gemme dine svar.</p>
+                                        </div>
+                                </div>
+                                <div class="panel panel-default topic-panel">
+                                        <div class="panel-heading">
+                                                <h3 class="panel-title">Sådan lægger du den på kisbye.eu</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                                <ol>
+                                                        <li>Upload projektet til et offentligt GitHub-repository, eller opdater et eksisterende.</li>
+                                                        <li>Aktivér GitHub Pages under repoets indstillinger (<em>Settings &gt; Pages</em>), og vælg hoved-branchens <code>/root</code>-mappe.</li>
+                                                        <li>Tilføj en DNS-<code>A</code>-record for <code>kisbye.eu</code>, der peger på GitHub Pages IP-adresserne (<code>185.199.108.153</code>–<code>185.199.111.153</code>), samt en <code>CNAME</code>-record for <code>www.kisbye.eu</code> til <code>yourusername.github.io</code>.</li>
+                                                        <li>Angiv <code>kisbye.eu</code> i feltet <em>Custom domain</em> i GitHub Pages, og bekræft at DNS’en er udbredt. Siden vil derefter være tilgængelig via dit domæne.</li>
+                                                </ol>
+                                                <p class="text-muted">Bemærk: Hvis du foretrækker egen hosting, kan du uploade de statiske filer til en webserver på dit domæne – der kræves ingen backend.</p>
+                                        </div>
+                                </div>
+                                <p class="text-muted">Mini-projektet er udarbejdet af Ronny Kisbye, 2022.</p>
+                        </div>
+                        <div class="col-md-5">
+                                <div class="panel panel-info topic-panel">
+                                        <div class="panel-heading">
+                                                <h3 class="panel-title">Sådan bruger du siden</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                                <ol>
+                                                        <li>Vælg et læringsområde via fanerne for at gennemgå spørgsmål og svar.</li>
+                                                        <li>Udnyt ressourcerne til at forberede fremlæggelser eller praktiske øvelser.</li>
+                                                        <li>Prøv webservicen ved at indtaste et navn og analysere de foreslåede lande.</li>
+                                                </ol>
+                                        </div>
+                                </div>
+                                <div class="panel panel-success topic-panel">
+                                        <div class="panel-heading">
+                                                <h3 class="panel-title">Projektmål</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                                <ul>
+                                                        <li>Forstå centrale begreber inden for cloud og infrastruktur.</li>
+                                                        <li>Opnå rutine i fejlfinding og anvendelse af forskellige talsystemer.</li>
+                                                        <li>Kunne forklare og håndtere samtidighed i softwareprojekter.</li>
+                                                        <li>Få praktisk erfaring med opsætning og fejlsøgning i netværk.</li>
+                                                </ul>
+                                        </div>
+                                </div>
+                                <div class="panel panel-warning topic-panel">
+                                        <div class="panel-heading">
+                                                <h3 class="panel-title">Sådan tester du siden</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                                <ol>
+                                                        <li>Start en lokal webserver (fx <code>python -m http.server 8000</code>) og åbn <code>http://localhost:8000</code> i en browser.</li>
+                                                        <li>Bekræft at fanerne vises korrekt, og klik gennem hvert læringsområde for at sikre, at indholdet indlæses.</li>
+                                                        <li>Scroll til webservice-fanen, indtast et gyldigt navn og kontroller, at resultat-tabellen vises uden fejl.</li>
+                                                        <li>Åbn browserens udviklerværktøjer og tjek konsollen for fejlmeddelelser, mens du bruger siden.</li>
+                                                        <li>Hvis du ønsker en hurtig automatisk vurdering, kan du køre Googles Lighthouse (indbygget i Chrome) og gemme rapporten.</li>
+                                                </ol>
+                                                <p class="text-muted">Tip: Gentag testen efter ændringer, så du sikrer, at både faner og webservice fortsat fungerer.</p>
+                                        </div>
+                                </div>
+                        </div>
                 </div>
                 <div id="om-1">
                         <div id="tabs-om-1">
@@ -76,32 +281,91 @@
                                         <li><a href="#sp-1">1</a></li>
                                         <li><a href="#sp-2">2</a></li>
                                 </ul>
-                                
-                        <p>Spørgsmål</p> <br/>
-                        1.Beskriv en computers hardware.<br/>
-                        2.Beskriv Azure Cloud og hvad du kan bruge den til.<br/>
-                        Svar
+                                <div id="sp-1">
+                                        <h3>Computers hardware</h3>
+                                        <p>En computers hardware består af de fysiske komponenter, der tilsammen udfører beregninger og håndterer data. Centrale dele inkluderer:</p>
+                                        <ul>
+                                                <li><strong>CPU (Central Processing Unit)</strong> – hjernen i systemet, der udfører instruktioner.</li>
+                                                <li><strong>RAM (Random Access Memory)</strong> – midlertidig hukommelse til aktive programmer og data.</li>
+                                                <li><strong>Lagring</strong> – f.eks. SSD eller HDD, hvor data gemmes permanent.</li>
+                                                <li><strong>Motherboard</strong> – forbinder alle komponenter og sørger for kommunikation imellem dem.</li>
+                                                <li><strong>Strømforsyning</strong> – leverer energi i korrekt spænding til komponenterne.</li>
+                                                <li><strong>I/O-enheder</strong> – tastatur, mus, skærm og andre enheder, der muliggør interaktion.</li>
+                                        </ul>
+                                </div>
+                                <div id="sp-2">
+                                        <h3>Azure Cloud og anvendelse</h3>
+                                        <p>Microsoft Azure er en cloudplatform, der leverer en bred vifte af tjenester såsom virtuelle maskiner, databaser, AI og DevOps-værktøjer. Den kan bruges til:</p>
+                                        <ul>
+                                                <li>At hoste webapplikationer og API'er med høj oppetid.</li>
+                                                <li>Skalering af ressourcer efter behov uden store investeringer i hardware.</li>
+                                                <li>Opsætning af sikre databaser og storage-løsninger.</li>
+                                                <li>Automatisering af deployments via pipelines og Infrastructure as Code.</li>
+                                                <li>Analyse af data med tjenester som Azure Synapse og Power BI.</li>
+                                        </ul>
+                                        <p class="text-muted">Tip: Start med Azure Portal eller Azure CLI for hurtigt at skabe nye ressourcer til projektet.</p>
+                                </div>
+                                <p class="text-info"><strong>Bonus:</strong> Undersøg også, hvordan Azure AD kan bruges til identitetshåndtering i dine projekter.</p>
                         </div>
                 </div>
                 <div id="om-2">
-                        <p>Spørgsmål og svar</p>
+                        <h3>Talsystemer og debugging</h3>
+                        <p>Dette område fokuserer på at forstå forskellige talsystemer og på at kunne spore fejl effektivt.</p>
+                        <div class="row">
+                                <div class="col-md-6">
+                                        <h4>Talsystemer</h4>
+                                        <ul>
+                                                <li>Konverter mellem binære, decimale og hexadecimale værdier.</li>
+                                                <li>Analyser hvorfor to-komplement bruges til at repræsentere negative tal.</li>
+                                                <li>Udfør bitvise operationer og forklar deres praktiske anvendelse.</li>
+                                        </ul>
+                                </div>
+                                <div class="col-md-6">
+                                        <h4>Debugging</h4>
+                                        <ul>
+                                                <li>Opstil en systematisk fejlsøgningsstrategi – reproducér, isolér og løs.</li>
+                                                <li>Brug breakpoints og logging til at identificere problemer i kodebasen.</li>
+                                                <li>Dokumentér dine fund, så teamet kan lære af fejlene.</li>
+                                        </ul>
+                                </div>
+                        </div>
+                        <p class="alert alert-info">Øvelse: Implementér en simpel konverter i valgfrit programmeringssprog, der kan oversætte mellem de tre vigtigste talsystemer.</p>
                 </div>
                 <div id="om-3">
-                        <p>Spørgsmål og svar</p>
+                        <h3>Samtidighedsproblematikker</h3>
+                        <p>Samtidighed opstår, når flere tråde eller processer kører samtidigt og deler ressourcer. Vigtige begreber:</p>
+                        <ul>
+                                <li><strong>Race conditions</strong> – når resultatet afhænger af rækkefølgen af operationer.</li>
+                                <li><strong>Deadlocks</strong> – to eller flere processer venter på hinanden i en cirkel.</li>
+                                <li><strong>Mutual exclusion</strong> – princip om, at kun én tråd ad gangen må få adgang til kritiske sektioner.</li>
+                                <li><strong>Lock-free algoritmer</strong> – datastrukturer, der undgår låsning for høj performance.</li>
+                        </ul>
+                        <p>Prøv at beskrive, hvordan du ville sikre dataintegritet i et system, hvor flere brugere samtidigt opdaterer den samme databasepost.</p>
                 </div>
                 <div id="om-4">
-                        <p>Spørgsmål og svar</p>
+                        <h3>Computernetværk</h3>
+                        <p>Netværksområdet dækker alt fra protokoller til praktisk opsætning:</p>
+                        <ul>
+                                <li>Forklar forskellen på TCP og UDP og hvornår de bør bruges.</li>
+                                <li>Beskriv, hvordan DNS fungerer, og hvorfor caching er vigtigt.</li>
+                                <li>Analyser et simpelt netværksdiagram og identificér potentielle flaskehalse.</li>
+                                <li>Øv dig i at anvende værktøjer som <code>ping</code>, <code>traceroute</code> og <code>wireshark</code>.</li>
+                        </ul>
+                        <p class="alert alert-success">Mini-øvelse: Opsæt et virtuelt netværk i en cloudløsning, og dokumentér hvordan du sikrer trafik mellem subnet.</p>
                 </div>
                 <div id="webs">
-                        <table>
-                                <tr>
-                                        <td>Navn</td><td style="padding-left: 20px;padding-right: 20px;"><input id="navn" alt="Klik på knappen og se svaret fra webserveren" title="Klik på knappen og se svaret fra webserveren"></td><td><button id="btnRun">Test webservice</button></td>
-                                </tr>
-                        </table>
-                        <br/>
-                        <br/>
-                        <b>Svar fra webservice</b>
-                        <div id="webresult"></div>
+                        <h3>Webservice-test</h3>
+                        <p>Indtast et navn for at se, hvilke lande der oftest er forbundet med navnet. Webservicen bruger sandsynligheder baseret på historiske data.</p>
+                        <form class="form-inline">
+                                <table class="webservice-table">
+                                        <tr>
+                                                <td><label for="navn" class="control-label"><strong>Navn</strong></label></td>
+                                                <td><input id="navn" class="form-control" placeholder="Fx Maria" alt="Klik på knappen og se svaret fra webserveren" title="Klik på knappen og se svaret fra webserveren"></td>
+                                                <td><button id="btnRun" class="btn btn-primary">Test webservice</button></td>
+                                        </tr>
+                                </table>
+                        </form>
+                        <div id="webresult" aria-live="polite"></div>
                 </div>
 
         </div>
